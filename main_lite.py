@@ -42,13 +42,13 @@ while not valid:
 
 # populate bannedIDs from banlist.csv
 # .csv files can be written and modified in Excel
-bannedIDs = set()
+bannedIDs = []
 if exists('banlist.csv'):
     with open('banlist.csv', newline='') as csvfile:
         csvreader = csv.reader(csvfile, delimiter=',', quotechar='|')
         csvreader.__next__()
         for row in csvreader:
-            bannedIDs.add(row[0])
+            bannedIDs.append(row[0])
 else:
     with open('banlist.csv', 'w', newline='') as csvfile:
         csvwriter = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
@@ -60,13 +60,13 @@ log = open(name+".log", "w")
 
 # main loop
 print("All set! To end the party, type 'DONE'\nTo ban someone mid party, type 'BAN' without hitting enter then swipe their ID.")
-enteredIDs = set()
+enteredIDs = []
 inpt = input("> ")
 log.write("Party name: {name}\n\nLog started at: {datetime}\nLog started by: {user}\n\n".format(name=name,  datetime=str(datetime.now().strftime('%H:%M:%S')), user=getlogin()))
 while inpt != "DONE":
-    if inpt[0:3] == "BAN":      # Ban someone mid party
+    if inpt[0:3] == "BAN" and len(inpt) > 23:      # Ban someone mid party
         ID = inpt.split(";")[-1][1:9]
-        bannedIDs.add(ID)
+        bannedIDs.append(ID)
         note = input("comments: ")
         log.write("{time}\t\tBanned\t{ID}\t{note}\n".format(time=str(datetime.now().strftime('%H:%M:%S')), ID=ID, note = note))
     else:                       # Respond to a normal swipe
@@ -82,8 +82,8 @@ while inpt != "DONE":
                 else:
                     print(colored("Welcome!", 'grey', 'on_green'))
                     log.write("{time}\t\tSwipe\t{ID}\n".format(time=str(datetime.now().strftime('%H:%M:%S')), ID=ID))
-                    enteredIDs.add(ID)
-            elif inpt != "DONE"
+                    enteredIDs.append(ID)
+            elif inpt != "DONE":
                 print(colored('Invalid ID', 'white', 'on_red'))
     inpt = input("> ")
 
@@ -93,10 +93,11 @@ log.write("\nPeople: {n}".format(n=str(len(enteredIDs))))
 log.close()
 
 # update banlist
-new = bannedIDs.difference(bannedIDsOG)
+n = len(bannedIDs) - len(bannedIDsOG)
 with open('banlist.csv', 'a', newline='') as csvfile:
     csvwriter = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-    for ID in new:
+    for ID in bannedIDs[n-1:]:
+        print(ID)
         csvwriter.writerow([ID])
 
 # finished
